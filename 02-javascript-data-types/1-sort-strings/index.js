@@ -6,6 +6,9 @@
    */
 export function sortStrings(arr, param = 'asc') {
   // eslint-disable-next-line no-nested-ternary
-  return param === 'asc' ? [...arr].sort((a, b) => a.localeCompare(b, ['ru-u-kf-upper', 'en-u-kf-upper']))
-    : param === 'desc' ? [...arr].sort((a, b) => b.localeCompare(a, ['ru-u-kf-upper', 'en-u-kf-upper'])) : '';
+  return [...arr].sort((a, b) => {
+    let result = a.localeCompare(b, ['ru-u-kf-upper', 'en-u-kf-upper']);
+    if (param === 'desc') result *= -1;
+    return result;
+  });
 }
