@@ -5,7 +5,6 @@
    * @returns {string[]}
    */
 export function sortStrings(arr, param = 'asc') {
-  // eslint-disable-next-line no-nested-ternary
   return [...arr].sort((a, b) => {
     let result = a.localeCompare(b, ['ru-u-kf-upper', 'en-u-kf-upper']);
     if (param === 'desc') result *= -1;
