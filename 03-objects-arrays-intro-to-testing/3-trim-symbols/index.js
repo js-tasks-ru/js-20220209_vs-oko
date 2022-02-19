@@ -7,8 +7,9 @@
 export function trimSymbols(string, size) {
   let count = 1;
   let resultString = '';
+  const stringArr = string.split('');
   if (size !== 0) {
-    for (const key of string.split('')) {
+    for (const key of stringArr) {
       if (resultString.slice(-1) === key) {
         count++;
         if (size < count) {
