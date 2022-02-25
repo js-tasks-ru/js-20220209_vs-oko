@@ -30,7 +30,7 @@ export default class ColumnChart {
     this.element = element.firstElementChild;
   }
   update(data) {
-    let innerElement = this.element.lastElementChild.lastElementChild;
+    const innerElement = this.element.lastElementChild.lastElementChild;
     innerElement.innerHTML = '';
     if (!data.length) {
       this.element.classList.add('column-chart_loading');

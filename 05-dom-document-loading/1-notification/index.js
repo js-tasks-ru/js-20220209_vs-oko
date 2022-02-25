@@ -1,4 +1,5 @@
 export default class NotificationMessage {
+  element = document.body;
   constructor(message = '', {
     duration = 1000,
     type = 'success',
@@ -7,7 +8,11 @@ export default class NotificationMessage {
     this.message = message;
     this.type = type;
     this.render();
-    NotificationMessage.isAlreadyShow = NotificationMessage.isAlreadyShow ? NotificationMessage.isAlreadyShow.remove(NotificationMessage.isAlreadyShow) : false;
+    if (NotificationMessage.isAlreadyShow) {
+      NotificationMessage.isAlreadyShow.remove(NotificationMessage.isAlreadyShow);
+    } else {
+      NotificationMessage.isAlreadyShow = false;
+    }
   }
   getTemplate () {
     return `<div class="notification" style="--value:20s">
@@ -24,10 +29,8 @@ export default class NotificationMessage {
     this.element = element.firstElementChild;
     this.element.classList.add(this.type);
   }
-  show(element) {
-    if (element) {
-      element.append(this.element)
-    } else document.body.append(this.element);
+  show(element = document.body) {
+    element.append(this.element);
     NotificationMessage.isAlreadyShow = this.element;
     const timer = setTimeout(() => this.remove(), this.duration);
     return this.element;
