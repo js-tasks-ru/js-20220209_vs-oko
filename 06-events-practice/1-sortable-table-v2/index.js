@@ -1,4 +1,5 @@
 export default class SortableTable {
+  subElements = {};
   constructor(headerConfig = [], {
     data = [],
     sorted = {}
@@ -47,21 +48,25 @@ export default class SortableTable {
     }
     return bodyArr.join('');
   }
+
+  getSubElements(element) {
+    const arr = element.querySelectorAll('[data-element]');
+    for (const elem of arr) {
+      this.subElements[elem.dataset.element] = elem;
+    }
+  }
   render() {
     const element = document.createElement('div'); // (*)
     element.innerHTML = this.getTemplate();
     this.element = element.firstElementChild;
-    this.header = this.element.querySelector('.sortable-table__header');
-    this.body = this.element.querySelector('.sortable-table__body');
+    this.getSubElements(this.element);
     this.sort(this.sorted.id, this.sorted.order);
   }
   initEventListeners () {
-    this.header.addEventListener('click', this.handleClick);
+    this.subElements.header.addEventListener('pointerdown', this.handleClick);
   }
   handleClick = (event) => {
-    const element = event.target.closest('.sortable-table__cell');
-    if (element.dataset.sortable === 'false') return;
-
+    const element = event.target.closest('[data-sortable="true"]');
     let order ;
     switch (element.dataset.order) {
     case 'asc':
@@ -75,6 +80,7 @@ export default class SortableTable {
     }
     this.sort(element.dataset.id, order);
   };
+
   sort (fieldValue, orderValue) {
     if (this.isSortLocally) {
       this.sortOnClient(fieldValue, orderValue);
@@ -99,9 +105,9 @@ export default class SortableTable {
         return direction * (a[fieldValue] - b[fieldValue]);
       }
     });
-    this.header.innerHTML = `${this.renderHeaders(fieldValue, orderValue)}`;
-    this.body.innerHTML = `${this.renderBody()}`;
-    this.subElements = {body: this.body, header: this.header}; //для совместимости
+    this.subElements.header.innerHTML = this.renderHeaders(fieldValue, orderValue);
+    this.subElements.body.innerHTML = this.renderBody();
+
   }
   sortOnServer(fieldValue, orderValue) {
 
