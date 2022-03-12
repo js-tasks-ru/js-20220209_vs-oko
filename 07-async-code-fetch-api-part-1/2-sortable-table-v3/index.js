@@ -5,6 +5,38 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 export default class SortableTable {
   subElements = {};
   pageSize = 30;
+  onWindowScroll = () => {
+    if (this.element.classList.contains("sortable-table_loading") || this.endOfData)
+      return;
+    if (this.element.getBoundingClientRect().bottom < document.documentElement.clientHeight) {
+      this.loadData(this.sorted.id, this.sorted.order)
+        .then((data) => {
+          this.data.push(...data);
+          this.subElements.body.innerHTML = this.renderBody();
+          this.element.classList.remove("sortable-table_loading");
+        })
+        .catch(error => {
+          console.error('ошибка получения данных', error);
+        });
+
+    }
+  };
+  handleClick = (event) => {
+    const element = event.target.closest('[data-sortable="true"]');
+    if (!element) return;
+    let order ;
+    switch (element.dataset.order) {
+    case 'asc':
+      order = 'desc';
+      break;
+    case 'desc':
+      order = 'asc';
+      break;
+    default:
+      order = 'asc';
+    }
+    this.sort(element.dataset.id, order).then(r => r);
+  };
   constructor(headerConfig = [], {
     data = [],
     sorted = {
@@ -45,6 +77,7 @@ export default class SortableTable {
     }
     return headerArr.join('');
   }
+
   renderBody () {
     let bodyArr = [];
     for (const obj of this.data) {
@@ -63,7 +96,6 @@ export default class SortableTable {
       this.subElements[elem.dataset.element] = elem;
     }
   }
-
   async render() {
     const element = document.createElement('div'); // (*)
     element.innerHTML = this.getTemplate();
@@ -71,9 +103,8 @@ export default class SortableTable {
     this.getSubElements(this.element);
 
     await this.sort(this.sorted.id, this.sorted.order);
-    // eslint-disable-next-line no-unused-expressions
-    !this.isSortLocally && document.addEventListener("scroll", this.onWindowScroll);
   }
+
   async loadData(id, order) {
     this.url.searchParams.set('_sort', id);
     this.url.searchParams.set('_order', order);
@@ -85,40 +116,11 @@ export default class SortableTable {
     this.element.classList.remove("sortable-table_loading");
     return data;
   }
+
   initEventListeners () {
     this.subElements.header.addEventListener('pointerdown', this.handleClick);
+    !this.isSortLocally && document.addEventListener("scroll", this.onWindowScroll);
   }
-
-  onWindowScroll = () => {
-    if (this.element.classList.contains("sortable-table_loading") || this.endOfData)
-      return;
-    if (this.element.getBoundingClientRect().bottom < document.documentElement.clientHeight) {
-      this.loadData(this.sorted.id, this.sorted.order)
-        .then((data) => {
-          this.data.push(...data);
-          this.subElements.body.innerHTML = this.renderBody();
-          this.element.classList.remove("sortable-table_loading");
-        });
-    }
-
-  };
-
-  handleClick = (event) => {
-    const element = event.target.closest('[data-sortable="true"]');
-    if (!element) return;
-    let order ;
-    switch (element.dataset.order) {
-    case 'asc':
-      order = 'desc';
-      break;
-    case 'desc':
-      order = 'asc';
-      break;
-    default:
-      order = 'asc';
-    }
-    this.sort(element.dataset.id, order).then(r => r);
-  };
   sortOnClient(id, order) {
     const directions = {
       asc: -1,
@@ -153,7 +155,6 @@ export default class SortableTable {
     this.subElements.header.innerHTML = this.renderHeaders(id, order);
     this.subElements.body.innerHTML = this.renderBody();
     this.element.classList.remove("sortable-table_loading");
-
   }
 
   remove () {
