@@ -90,15 +90,13 @@ export default class SortableTable {
   }
 
   onWindowScroll = () => {
-    if (this.endOfData) return;
-    if (this.element.classList.contains("sortable-table_loading"))
+    if (this.element.classList.contains("sortable-table_loading") || this.endOfData)
       return;
     if (this.element.getBoundingClientRect().bottom < document.documentElement.clientHeight) {
       this.loadData(this.sorted.id, this.sorted.order)
         .then((data) => {
-          // eslint-disable-next-line no-unused-expressions
-          this.data.push(...data),
-          this.subElements.body.innerHTML = this.renderBody(),
+          this.data.push(...data);
+          this.subElements.body.innerHTML = this.renderBody();
           this.element.classList.remove("sortable-table_loading");
         });
     }
@@ -155,6 +153,7 @@ export default class SortableTable {
     this.subElements.header.innerHTML = this.renderHeaders(id, order);
     this.subElements.body.innerHTML = this.renderBody();
     this.element.classList.remove("sortable-table_loading");
+
   }
 
   remove () {
@@ -163,6 +162,7 @@ export default class SortableTable {
 
   destroy() {
     this.remove();
+    document.removeEventListener("scroll", this.onWindowScroll);
   }
 
 }
