@@ -28,7 +28,8 @@ export default class ProductForm {
 
   template() {
     return `
-      <div class="product-form">
+    <div class="product-form">
+    
     <form data-element="productForm" class="form-grid">
       <div class="form-group form-group__half_left">
         <fieldset>
@@ -36,25 +37,29 @@ export default class ProductForm {
           <input required="" type="text" name="title" class="form-control" placeholder="Название товара">
         </fieldset>
       </div>
+      
       <div class="form-group form-group__wide">
         <label class="form-label">Описание</label>
         <textarea required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара"></textarea>
       </div>
+      
       <div class="form-group form-group__wide" data-element="sortable-list-container">
         <label class="form-label">Фото</label>
-        <div data-element="imageListContainer">
-        <ul class="sortable-list">
+
+        <ul class="sortable-list" data-element="imageListContainer">
            ${this.createImagesList()}
          </ul>
-         </div>
+
         <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
       </div>
+      
       <div class="form-group form-group__half_left">
         <label class="form-label">Категория</label>
         <select class="form-control" name="subcategory">
             ${this.createCategoriesSelect()}
         </select>
       </div>
+      
       <div class="form-group form-group__half_left form-group__two-col">
         <fieldset>
           <label class="form-label">Цена ($)</label>
@@ -65,6 +70,7 @@ export default class ProductForm {
           <input required="" type="number" name="discount" class="form-control" placeholder="${this.defaultFormData.discount}">
         </fieldset>
       </div>
+      
       <div class="form-group form-group__part-half">
         <label class="form-label">Количество</label>
         <input required="" type="number" class="form-control" name="quantity" placeholder="${this.defaultFormData.quantity}">
@@ -132,11 +138,11 @@ export default class ProductForm {
   }
 
   async loadProductData() {
-    return await fetchJson(`https://course-js.javascript.ru/api/rest/products?id=${this.productId}`);
+    return fetchJson(`https://course-js.javascript.ru/api/rest/products?id=${this.productId}`);
   }
 
   async loadCategoriesList() {
-    return await fetchJson("https://course-js.javascript.ru/api/rest/categories?_sort=weight&_refs=subcategory");
+    return fetchJson("https://course-js.javascript.ru/api/rest/categories?_sort=weight&_refs=subcategory");
 
   }
 
@@ -204,7 +210,7 @@ export default class ProductForm {
     productForm.uploadImage.addEventListener('click', this.uploadImage) ;
 
     imageListContainer.addEventListener('click', event => {
-      if ('deteteHandte' in event.target.dataset)
+      if ('deleteHandle' in event.target.dataset)
         event.target.closest('li').remove();
     });
   }
@@ -227,8 +233,9 @@ export default class ProductForm {
           headers: {
             Authorization: `Client-ID ${IMGUR_CLIENT_ID}`
           },
-          body: formData
-        }).data.link;
+          body: formData,
+          referrer: ''
+        });
       } catch (error) {
         return new Error("Upload error: " + error.message);
       } finally {
@@ -236,8 +243,8 @@ export default class ProductForm {
         this.subElements.productForm.uploadImage.disabled = false;
       }
 
-      this.formData.images.push({url: result, source: file.name});
-      this.subElements.imageListContainer.firstElementChild.innerHTML = this.createImagesList();
+      this.formData.images.push({url: result.data.link, source: file.name});
+      this.subElements.imageListContainer.innerHTML = this.createImagesList();
     };
     fileInput.hidden = true;
     document.body.appendChild(fileInput);
@@ -264,9 +271,14 @@ export default class ProductForm {
                    </li>`;
   }
 
+  remove () {
+    this.element.remove();
+  }
 
   destroy() {
-    this.element.remove();
+    productForm.uploadImage.removeEventListener('click', this.uploadImage);
+    productForm.removeEventListener('submit', this.onSubmit);
+    this.remove();
   }
 }
 
