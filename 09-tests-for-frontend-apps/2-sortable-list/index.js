@@ -9,8 +9,7 @@ export default class SortableList {
     this.element = document.createElement("ul");
     this.element.classList.add('sortable-list');
     for (const elem of this.items) {
-      elem.classList.add('sortable-list__item');
-      this.element.append(elem);
+      this.addItem(elem);
     }
     this.element.addEventListener('pointerdown', this.onPointerDown);
   }
@@ -28,7 +27,10 @@ export default class SortableList {
       this.removeItem(element);
     }
   };
-
+  addItem(elem) {
+    elem.classList.add("sortable-list__item");
+    this.element.append(elem);
+  }
   removeItem(element) {
     element.remove();
     this.element.dispatchEvent(new CustomEvent("sortable-list-delete", {
