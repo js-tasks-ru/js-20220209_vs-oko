@@ -122,7 +122,6 @@ export default class SortableTable {
 
     this.data = [...this.data, ...data];
     rows.innerHTML = this.renderBody(data);
-    console.log(replace);
 
     if (replace) this.subElements.body.innerHTML = '';
     this.subElements.body.append(...rows.childNodes);
