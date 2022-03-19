@@ -11,7 +11,8 @@ export default class SortableTable {
     if (this.element.getBoundingClientRect().bottom < document.documentElement.clientHeight) {
       this.loadData(this.sorted.id, this.sorted.order)
         .then((data) => {
-          this.update(data);
+          const replace = false;
+          this.update(data, replace);
           this.element.classList.remove("sortable-table_loading");
         })
         .catch(error => {
@@ -116,12 +117,14 @@ export default class SortableTable {
     this.element.classList.remove("sortable-table_loading");
     return data;
   }
-  update(data) {
+  update(data, replace = true) {
     const rows = document.createElement('div');
 
     this.data = [...this.data, ...data];
     rows.innerHTML = this.renderBody(data);
+    console.log(replace);
 
+    if (replace) this.subElements.body.innerHTML = '';
     this.subElements.body.append(...rows.childNodes);
   }
 
